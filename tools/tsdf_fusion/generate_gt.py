@@ -16,9 +16,9 @@ torch.multiprocessing.set_sharing_strategy('file_system')
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Fuse ground truth tsdf')
-    parser.add_argument("--dataset", default='scannet')
+    parser.add_argument("--dataset", default='multiscan')
     parser.add_argument("--data_path", metavar="DIR",
-                        help="path to raw dataset", default='/data/scannet/output/')
+                        help="path to raw dataset", default='/data/multiscan/output/')
     parser.add_argument("--save_name", metavar="DIR",
                         help="file name", default='all_tsdf')
     parser.add_argument('--test', action='store_true',
@@ -29,7 +29,7 @@ def parse_args():
     parser.add_argument('--margin', default=3, type=int)
     parser.add_argument('--voxel_size', default=0.04, type=float)
 
-    parser.add_argument('--window_size', default=9, type=int)
+    parser.add_argument('--window_size', default=1, type=int)
     parser.add_argument('--min_angle', default=15, type=float)
     parser.add_argument('--min_distance', default=0.1, type=float)
 
@@ -206,6 +206,11 @@ def process_with_single_worker(args, scannet_files):
 
         if args.dataset == 'scannet':
             n_imgs = len(os.listdir(os.path.join(args.data_path, scene, 'color')))
+            intrinsic_dir = os.path.join(args.data_path, scene, 'intrinsic', 'intrinsic_depth.txt')
+            cam_intr = np.loadtxt(intrinsic_dir, delimiter=' ')[:3, :3]
+            dataset = ScanNetDataset(n_imgs, scene, args.data_path, args.max_depth)
+        if args.dataset == 'multiscan':
+            n_imgs = len(os.listdir(os.path.join(args.data_path, scene, 'rgb')))
             intrinsic_dir = os.path.join(args.data_path, scene, 'intrinsic', 'intrinsic_depth.txt')
             cam_intr = np.loadtxt(intrinsic_dir, delimiter=' ')[:3, :3]
             dataset = ScanNetDataset(n_imgs, scene, args.data_path, args.max_depth)
