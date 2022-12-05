@@ -44,7 +44,7 @@ class ScanNetDataset(torch.utils.data.Dataset):
         depth_im[depth_im > self.max_depth] = 0
 
         # Read RGB image
-        color_image = cv2.cvtColor(cv2.imread(os.path.join(self.data_path, self.scene, "color", str(id) + ".jpg")),
+        color_image = cv2.cvtColor(cv2.imread(os.path.join(self.data_path, self.scene, "color", str(id) + ".png")),
                                    cv2.COLOR_BGR2RGB)
         color_image = cv2.resize(color_image, (depth_im.shape[1], depth_im.shape[0]), interpolation=cv2.INTER_AREA)
 
