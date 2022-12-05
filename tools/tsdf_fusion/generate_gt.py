@@ -274,7 +274,7 @@ if __name__ == "__main__":
 
     if args.dataset in ['scannet', 'multiscan']:
         #if not args.test:
-        args.data_path = os.path.join(args.data_path)
+        args.data_path = os.path.join(args.data_path, "scans")
         # else:
         #     args.data_path = os.path.join(args.data_path, 'scans_test')
         files = sorted(os.listdir(args.data_path))
