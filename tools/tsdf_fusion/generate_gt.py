@@ -213,7 +213,7 @@ def process_with_single_worker(args, scannet_files):
             n_imgs = len(os.listdir(os.path.join(args.data_path, scene, 'color')))
             intrinsic_dir = os.path.join(args.data_path, scene, 'intrinsic', 'intrinsic_depth.txt')
             cam_intr = np.loadtxt(intrinsic_dir, delimiter=' ')[:3, :3]
-            dataset = ScanNetDataset(n_imgs, scene, args.data_path, args.max_depth, list(range(0, n_imgs + 1, 9)))
+            dataset = ScanNetDataset(n_imgs, scene, args.data_path, args.max_depth, list(range(0, n_imgs * 9, 9)))
 
         dataloader = torch.utils.data.DataLoader(dataset, batch_size=None, collate_fn=collate_fn,
                                                  batch_sampler=None, num_workers=args.loader_num_workers)
