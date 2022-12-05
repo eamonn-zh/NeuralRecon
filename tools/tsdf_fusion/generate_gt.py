@@ -35,7 +35,7 @@ def parse_args():
 
     # ray multi processes
     parser.add_argument('--n_proc', type=int, default=16, help='#processes launched to process scenes.')
-    parser.add_argument('--n_gpu', type=int, default=2, help='#number of gpus')
+    parser.add_argument('--n_gpu', type=int, default=1, help='#number of gpus')
     parser.add_argument('--num_workers', type=int, default=8)
     parser.add_argument('--loader_num_workers', type=int, default=8)
     return parser.parse_args()
@@ -268,11 +268,11 @@ if __name__ == "__main__":
 
     ray.init(num_cpus=all_proc * (args.num_workers + 1), num_gpus=args.n_gpu)
 
-    if args.dataset == 'scannet':
-        if not args.test:
-            args.data_path = os.path.join(args.data_path, 'scans')
-        else:
-            args.data_path = os.path.join(args.data_path, 'scans_test')
+    if args.dataset in ['scannet', 'multiscan']:
+        #if not args.test:
+        args.data_path = os.path.join(args.data_path, 'scans')
+        # else:
+        #     args.data_path = os.path.join(args.data_path, 'scans_test')
         files = sorted(os.listdir(args.data_path))
     else:
         raise NameError('error!')
@@ -285,5 +285,5 @@ if __name__ == "__main__":
 
     results = ray.get(ray_worker_ids)
 
-    if args.dataset == 'scannet':
+    if args.dataset in ['scannet', 'multiscan']:
         generate_pkl(args)
