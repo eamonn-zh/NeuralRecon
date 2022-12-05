@@ -210,7 +210,7 @@ def process_with_single_worker(args, scannet_files):
             cam_intr = np.loadtxt(intrinsic_dir, delimiter=' ')[:3, :3]
             dataset = ScanNetDataset(n_imgs, scene, args.data_path, args.max_depth)
         if args.dataset == 'multiscan':
-            n_imgs = len(os.listdir(os.path.join(args.data_path, scene, 'rgb')))
+            n_imgs = len(os.listdir(os.path.join(args.data_path, scene, 'color')))
             intrinsic_dir = os.path.join(args.data_path, scene, 'intrinsic', 'intrinsic_depth.txt')
             cam_intr = np.loadtxt(intrinsic_dir, delimiter=' ')[:3, :3]
             dataset = ScanNetDataset(n_imgs, scene, args.data_path, args.max_depth)
