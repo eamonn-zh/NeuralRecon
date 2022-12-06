@@ -29,12 +29,12 @@ def parse_args():
     parser.add_argument('--margin', default=3, type=int)
     parser.add_argument('--voxel_size', default=0.04, type=float)
 
-    parser.add_argument('--window_size', default=1, type=int)
+    parser.add_argument('--window_size', default=9, type=int)
     parser.add_argument('--min_angle', default=15, type=float)
     parser.add_argument('--min_distance', default=0.1, type=float)
 
     # ray multi processes
-    parser.add_argument('--n_proc', type=int, default=16, help='#processes launched to process scenes.')
+    parser.add_argument('--n_proc', type=int, default=8, help='#processes launched to process scenes.')
     parser.add_argument('--n_gpu', type=int, default=1, help='#number of gpus')
     parser.add_argument('--num_workers', type=int, default=8)
     parser.add_argument('--loader_num_workers', type=int, default=8)
@@ -156,9 +156,9 @@ def save_fragment_pkl(args, scene, cam_intr, depth_list, cam_pose_list):
             vol_bnds[:, 1] = np.maximum(vol_bnds[:, 1], np.amax(view_frust_pts, axis=1))
             count += 1
         else:
-            angle = np.arccos(
+            angle = np.arccos(np.clip(
                 ((np.linalg.inv(cam_pose[:3, :3]) @ last_pose[:3, :3] @ np.array([0, 0, 1]).T) * np.array(
-                    [0, 0, 1])).sum())
+                    [0, 0, 1])).sum(), -1, 1))
             dis = np.linalg.norm(cam_pose[:3, 3] - last_pose[:3, 3])
             if angle > (args.min_angle / 180) * np.pi or dis > args.min_distance:
                 ids.append(id)
@@ -219,13 +219,13 @@ def process_with_single_worker(args, scannet_files):
                                                  batch_sampler=None, num_workers=args.loader_num_workers)
 
         for id, (cam_pose, depth_im, _) in enumerate(dataloader):
-            if id % 100 == 0:
-                print("{}: read frame {}/{}".format(scene, str(id), str(n_imgs)))
+            # if id % 100 == 0:
+            #     print("{}: read frame {}/{}".format(scene, str(id), str(n_imgs)))
 
             if cam_pose[0][0] == np.inf or cam_pose[0][0] == -np.inf or cam_pose[0][0] == np.nan:
                 continue
-            depth_all.update({id: depth_im})
-            cam_pose_all.update({id: cam_pose})
+            depth_all.update({id*9: depth_im})
+            cam_pose_all.update({id*9: cam_pose})
             # color_all.update({id: color_image})
 
         save_tsdf_full(args, scene, cam_intr, depth_all, cam_pose_all, color_all, save_mesh=False)

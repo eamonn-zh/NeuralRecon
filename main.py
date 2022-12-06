@@ -115,7 +115,8 @@ transforms = transforms.Compose(transform)
 # dataset, dataloader
 MVSDataset = find_dataset_def(cfg.DATASET)
 train_dataset = MVSDataset(cfg.TRAIN.PATH, "train", transforms, cfg.TRAIN.N_VIEWS, len(cfg.MODEL.THRESHOLDS) - 1)
-test_dataset = MVSDataset(cfg.TEST.PATH, "test", transforms, cfg.TEST.N_VIEWS, len(cfg.MODEL.THRESHOLDS) - 1)
+
+test_dataset = MVSDataset(cfg.TEST.PATH, "val", transforms, cfg.TEST.N_VIEWS, len(cfg.MODEL.THRESHOLDS) - 1)
 
 if cfg.DISTRIBUTED:
     train_sampler = DistributedSampler(train_dataset, shuffle=False)
@@ -227,9 +228,9 @@ def test(from_latest=False):
     while True:
         saved_models = [fn for fn in os.listdir(cfg.LOGDIR) if fn.endswith(".ckpt")]
         saved_models = sorted(saved_models, key=lambda x: int(x.split('_')[-1].split('.')[0]))
-
-        if from_latest:
-            saved_models = saved_models[-1:]
+        saved_models = [saved_models[-1]]
+        # if from_latest:
+        #     saved_models = saved_models[-1:]
         for ckpt in saved_models:
             if ckpt not in ckpt_list:
                 # use the latest checkpoint file
@@ -256,7 +257,7 @@ def test(from_latest=False):
                                                                                                 len(TestImgLoader),
                                                                                                 loss,
                                                                                                 time.time() - start_time))
-                    avg_test_scalars.update(scalar_outputs)
+                    # avg_test_scalars.update(scalar_outputs)
                     del scalar_outputs
 
                     if batch_idx % 100 == 0:
@@ -289,7 +290,7 @@ def train_sample(sample):
 @make_nograd_func
 def test_sample(sample, save_scene=False):
     model.eval()
-
+    torch.cuda.empty_cache()
     outputs, loss_dict = model(sample, save_scene)
     loss = loss_dict['total_loss']
 

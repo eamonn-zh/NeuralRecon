@@ -18,7 +18,8 @@ class ScanNetDataset(Dataset):
         assert self.mode in ["train", "val", "test"]
         self.metas = self.build_list()
         if mode == 'test':
-            self.source_path = 'scans_test'
+            # self.source_path = 'scans_test'
+            self.source_path = 'scans'
         else:
             self.source_path = 'scans'
 
@@ -75,12 +76,11 @@ class ScanNetDataset(Dataset):
         intrinsics_list = []
 
         tsdf_list = self.read_scene_volumes(os.path.join(self.datapath, self.tsdf_file), meta['scene'])
-
         for i, vid in enumerate(meta['image_ids']):
             # load images
             imgs.append(
                 self.read_img(
-                    os.path.join(self.datapath, self.source_path, meta['scene'], 'color', '{}.jpg'.format(vid))))
+                    os.path.join(self.datapath, self.source_path, meta['scene'], 'color', '{}.png'.format(vid))))
 
             depth.append(
                 self.read_depth(

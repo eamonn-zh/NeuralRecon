@@ -1,12 +1,12 @@
 DATASET: 'scannet'
-BATCH_SIZE: 2
+BATCH_SIZE: 1
 SAVE_SCENE_MESH: True
 LOGDIR: './checkpoints'
 SAVE_FREQ: 1
 MODE: 'test'
 
 TRAIN:
-  PATH: 'data/scannet'
+  PATH: '/localhome/yza440/Research/NeuralRecon/datasets/multiscan'
   EPOCHS: 991
   N_VIEWS: 9
   LR: 1e-3
@@ -14,7 +14,7 @@ TRAIN:
   LREPOCHS: '12,24,48:2'
 
 TEST:
-  PATH: 'data/scannet'
+  PATH: '/localhome/yza440/Research/NeuralRecon/datasets/multiscan'
   N_VIEWS: 9
   N_WORKERS: 4
 
