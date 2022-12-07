@@ -25,7 +25,7 @@ import os
 
 def visualize(fname):
     key_names = ['AbsRel', 'AbsDiff', 'SqRel', 'RMSE', 'LogRMSE', 'r1', 'r2', 'r3', 'complete', 'dist1', 'dist2',
-                 'prec', 'recal', 'fscore']
+                 'prec', 'recal', 'fscore', 'Chanfer']
 
     metrics = json.load(open(fname, 'r'))
     metrics = sorted([(scene, metric) for scene, metric in metrics.items()], key=lambda x: x[0])

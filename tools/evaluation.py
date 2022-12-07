@@ -45,9 +45,9 @@ def parse_args():
     parser.add_argument('--max_depth', default=10., type=float,
                         help='mask out large depth values since they are noisy')
     parser.add_argument("--data_path", metavar="DIR",
-                        help="path to dataset", default='./data/scannet/scans_test')
+                        help="path to dataset", default='./datasets/multiscan/scans_val')
     parser.add_argument("--gt_path", metavar="DIR",
-                        help="path to raw dataset", default='/data/scannet/scannet/scans_test')
+                        help="path to raw dataset", default='/project/3dlg-hcvc/yma50/multiscan_gt')
 
     # ray config
     parser.add_argument('--n_proc', type=int, default=2, help='#processes launched to process scenes.')
@@ -108,7 +108,9 @@ def process(scene, total_scenes_index, total_scenes_count):
     n_imgs = len(test_framid)
     intrinsic_dir = os.path.join(args.data_path, scene, 'intrinsic', 'intrinsic_depth.txt')
     cam_intr = np.loadtxt(intrinsic_dir, delimiter=' ')[:3, :3]
-    dataset = ScanNetDataset(n_imgs, scene, args.data_path, args.max_depth)
+    
+    # TODO
+    dataset = ScanNetDataset(n_imgs, scene, args.data_path, args.max_depth, list(range(0, n_imgs * 9, 9)))
 
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=None, collate_fn=collate_fn,
                                              batch_sampler=None, num_workers=args.loader_num_workers)
@@ -130,7 +132,7 @@ def process(scene, total_scenes_index, total_scenes_count):
     mesh_opengl = renderer.mesh_opengl(mesh)
 
     for i, (cam_pose, depth_trgt, _) in enumerate(dataloader):
-        print(total_scenes_index, total_scenes_count, scene, i, len(dataloader))
+        # print(total_scenes_index, total_scenes_count, scene, i, len(dataloader))
         if cam_pose[0][0] == np.inf or cam_pose[0][0] == -np.inf or cam_pose[0][0] == np.nan:
             continue
 
@@ -165,9 +167,10 @@ def process(scene, total_scenes_index, total_scenes_count):
     o3d.io.write_triangle_mesh(file_mesh_trim, volume.extract_triangle_mesh())
 
     # eval trimed mesh
-    file_mesh_trgt = os.path.join(args.gt_path, scene, scene + '_vh_clean_2.ply')
+    file_mesh_trgt = os.path.join(args.gt_path, scene + '.ply')
+    print(scene)
     metrics_mesh = eval_mesh(file_mesh_trim, file_mesh_trgt)
-
+    print()
     metrics = {**metrics_depth, **metrics_mesh}
 
     rslt_file = os.path.join(save_path, '%s_metrics.json' % scene.replace('/', '-'))

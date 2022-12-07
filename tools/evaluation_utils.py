@@ -55,10 +55,13 @@ def eval_mesh(file_pred, file_trgt, threshold=.05, down_sample=.02):
     fscore = 2 * precision * recal / (precision + recal)
     metrics = {'dist1': np.mean(dist2),
                'dist2': np.mean(dist1),
+               'Chanfer': np.mean(dist2)/2.0 + np.mean(dist1)/2.0,
                'prec': precision,
                'recal': recal,
                'fscore': fscore,
                }
+
+    print(f'{metrics["Chanfer"],metrics["prec"],metrics["recal"],metrics["fscore"]}')
     return metrics
 
 
