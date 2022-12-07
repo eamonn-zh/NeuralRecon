@@ -142,7 +142,7 @@ class NeuConNet(nn.Module):
             # ----convert to aligned camera coordinate----
             r_coords = up_coords.detach().clone().float()
             for b in range(bs):
-                batch_ind = torch.nonzero(up_coords[:, 0] == b).squeeze(1)
+                batch_ind = torch.nonzero(up_coords[:, 0] == b, as_tuple=False).squeeze(1)
                 coords_batch = up_coords[batch_ind][:, 1:].float()
                 coords_batch = coords_batch * self.cfg.VOXEL_SIZE + inputs['vol_origin_partial'][b].float()
                 coords_batch = torch.cat((coords_batch, torch.ones_like(coords_batch[:, :1])), dim=1)
