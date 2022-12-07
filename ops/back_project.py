@@ -26,7 +26,7 @@ def back_project(coords, origin, voxel_size, feats, KRcam):
     count = torch.zeros(coords.shape[0]).cuda()
 
     for batch in range(bs):
-        batch_ind = torch.nonzero(coords[:, 0] == batch).squeeze(1)
+        batch_ind = torch.nonzero(coords[:, 0] == batch, as_tuple=False).squeeze(1)
         coords_batch = coords[batch_ind][:, 1:]
 
         coords_batch = coords_batch.view(-1, 3)

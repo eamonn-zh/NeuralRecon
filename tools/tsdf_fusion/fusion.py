@@ -1,7 +1,8 @@
 # Copyright (c) 2018 Andy Zeng
 
 import numpy as np
-
+import pycuda.driver as cuda
+from pycuda.compiler import SourceModule
 from numba import njit, prange
 from skimage import measure
 import torch
@@ -20,9 +21,7 @@ class TSDFVolume:
           voxel_size (float): The volume discretization in meters.
         """
         # try:
-        import pycuda.driver as cuda
-        import pycuda.autoinit
-        from pycuda.compiler import SourceModule
+
 
         FUSION_GPU_MODE = 1
         self.cuda = cuda

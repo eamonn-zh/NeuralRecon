@@ -195,7 +195,10 @@ def train():
 
     for epoch_idx in range(start_epoch, cfg.TRAIN.EPOCHS):
         logger.info('Epoch {}:'.format(epoch_idx))
-        lr_scheduler.step()
+        if epoch_idx >= 15:
+            cfg.FUSION.FULL = True
+            cfg.FUSION.FUSION_ON = True
+
         TrainImgLoader.dataset.epoch = epoch_idx
         TrainImgLoader.dataset.tsdf_cashe = {}
         # training
@@ -213,7 +216,7 @@ def train():
             if do_summary and is_main_process():
                 save_scalars(tb_writer, 'train', scalar_outputs, global_step)
             del scalar_outputs
-
+        lr_scheduler.step()
         # checkpoint
         if (epoch_idx + 1) % cfg.SAVE_FREQ == 0 and is_main_process():
             torch.save({
@@ -221,6 +224,8 @@ def train():
                 'model': model.state_dict(),
                 'optimizer': optimizer.state_dict()},
                 "{}/model_{:0>6}.ckpt".format(cfg.LOGDIR, epoch_idx))
+
+            test()
 
 
 def test(from_latest=False):
@@ -267,7 +272,7 @@ def test(from_latest=False):
                 # save mesh
                 if cfg.SAVE_SCENE_MESH:
                     save_mesh_scene(outputs, sample, epoch_idx)
-            save_scalars(tb_writer, 'fulltest', avg_test_scalars.mean(), epoch_idx)
+            save_scalars(tb_writer, 'val', avg_test_scalars.mean(), epoch_idx)
             logger.info("epoch {} avg_test_scalars:".format(epoch_idx), avg_test_scalars.mean())
 
             ckpt_list.append(ckpt)
