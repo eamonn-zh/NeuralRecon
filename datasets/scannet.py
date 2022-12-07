@@ -39,7 +39,7 @@ class ScanNetDataset(Dataset):
     def read_cam_file(self, filepath, vid):
         intrinsics = np.loadtxt(os.path.join(filepath, 'intrinsic', 'intrinsic_color.txt'), delimiter=' ')[:3, :3]
         intrinsics = intrinsics.astype(np.float32)
-        extrinsics = np.loadtxt(os.path.join(filepath, 'pose', '{}.txt'.format(str(vid))))
+        extrinsics = np.linalg.inv(np.loadtxt(os.path.join(filepath, 'pose', '{}.txt'.format(str(vid)))))
         return intrinsics, extrinsics
 
     def read_img(self, filepath):

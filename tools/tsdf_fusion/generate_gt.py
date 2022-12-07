@@ -16,7 +16,7 @@ torch.multiprocessing.set_sharing_strategy('file_system')
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Fuse ground truth tsdf')
-    parser.add_argument("--dataset", default='multiscan')
+    parser.add_argument("--dataset", default='scannet')
     parser.add_argument("--data_path", metavar="DIR",
                         help="path to raw dataset", default='/data/multiscan/output/')
     parser.add_argument("--save_name", metavar="DIR",
@@ -34,10 +34,10 @@ def parse_args():
     parser.add_argument('--min_distance', default=0.1, type=float)
 
     # ray multi processes
-    parser.add_argument('--n_proc', type=int, default=8, help='#processes launched to process scenes.')
+    parser.add_argument('--n_proc', type=int, default=10, help='#processes launched to process scenes.')
     parser.add_argument('--n_gpu', type=int, default=1, help='#number of gpus')
-    parser.add_argument('--num_workers', type=int, default=8)
-    parser.add_argument('--loader_num_workers', type=int, default=8)
+    parser.add_argument('--num_workers', type=int, default=10)
+    parser.add_argument('--loader_num_workers', type=int, default=10)
     return parser.parse_args()
 
 
@@ -156,9 +156,9 @@ def save_fragment_pkl(args, scene, cam_intr, depth_list, cam_pose_list):
             vol_bnds[:, 1] = np.maximum(vol_bnds[:, 1], np.amax(view_frust_pts, axis=1))
             count += 1
         else:
-            angle = np.arccos(np.clip(
+            angle = np.arccos(
                 ((np.linalg.inv(cam_pose[:3, :3]) @ last_pose[:3, :3] @ np.array([0, 0, 1]).T) * np.array(
-                    [0, 0, 1])).sum(), -1, 1))
+                    [0, 0, 1])).sum())
             dis = np.linalg.norm(cam_pose[:3, 3] - last_pose[:3, 3])
             if angle > (args.min_angle / 180) * np.pi or dis > args.min_distance:
                 ids.append(id)
@@ -209,11 +209,7 @@ def process_with_single_worker(args, scannet_files):
             intrinsic_dir = os.path.join(args.data_path, scene, 'intrinsic', 'intrinsic_depth.txt')
             cam_intr = np.loadtxt(intrinsic_dir, delimiter=' ')[:3, :3]
             dataset = ScanNetDataset(n_imgs, scene, args.data_path, args.max_depth)
-        if args.dataset == 'multiscan':
-            n_imgs = len(os.listdir(os.path.join(args.data_path, scene, 'color')))
-            intrinsic_dir = os.path.join(args.data_path, scene, 'intrinsic', 'intrinsic_depth.txt')
-            cam_intr = np.loadtxt(intrinsic_dir, delimiter=' ')[:3, :3]
-            dataset = ScanNetDataset(n_imgs, scene, args.data_path, args.max_depth, list(range(0, n_imgs * 9, 9)))
+   
 
         dataloader = torch.utils.data.DataLoader(dataset, batch_size=None, collate_fn=collate_fn,
                                                  batch_sampler=None, num_workers=args.loader_num_workers)
@@ -224,8 +220,8 @@ def process_with_single_worker(args, scannet_files):
 
             if cam_pose[0][0] == np.inf or cam_pose[0][0] == -np.inf or cam_pose[0][0] == np.nan:
                 continue
-            depth_all.update({id*9: depth_im})
-            cam_pose_all.update({id*9: cam_pose})
+            depth_all.update({id: depth_im})
+            cam_pose_all.update({id: cam_pose})
             # color_all.update({id: color_image})
 
         save_tsdf_full(args, scene, cam_intr, depth_all, cam_pose_all, color_all, save_mesh=False)
