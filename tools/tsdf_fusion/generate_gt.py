@@ -224,7 +224,7 @@ def process_with_single_worker(args, scannet_files):
             cam_pose_all.update({id: cam_pose})
             # color_all.update({id: color_image})
 
-        save_tsdf_full(args, scene, cam_intr, depth_all, cam_pose_all, color_all, save_mesh=False)
+        save_tsdf_full(args, scene, cam_intr, depth_all, cam_pose_all, color_all, save_mesh=True)
         save_fragment_pkl(args, scene, cam_intr, depth_all, cam_pose_all)
 
 

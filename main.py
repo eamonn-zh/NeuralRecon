@@ -195,9 +195,7 @@ def train():
 
     for epoch_idx in range(start_epoch, cfg.TRAIN.EPOCHS):
         logger.info('Epoch {}:'.format(epoch_idx))
-        if epoch_idx >= 15:
-            cfg.MODEL.FUSION.FULL = True
-            cfg.MODEL.FUSION.FUSION_ON = True
+   
 
         TrainImgLoader.dataset.epoch = epoch_idx
         TrainImgLoader.dataset.tsdf_cashe = {}

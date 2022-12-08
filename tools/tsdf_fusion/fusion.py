@@ -5,6 +5,7 @@ import pycuda.driver as cuda
 from pycuda.compiler import SourceModule
 from numba import njit, prange
 from skimage import measure
+import pycuda.autoinit
 import torch
 
 
